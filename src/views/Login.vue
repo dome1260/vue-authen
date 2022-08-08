@@ -21,6 +21,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { mapActions } from 'vuex'
 
 export default {
@@ -37,15 +38,29 @@ export default {
     ...mapActions({
       setAuth: 'auth/setAuth'
     }),
-    login () {
-      if (this.form.username === 'admin' && this.form.password === 'admin') {
-        alert('เข้าสู่ระบบสำเร็จ')
-        this.setAuth({
-          username: this.form.username
+    clearForm () {
+      this.form = {
+        username: '',
+        password: ''
+      }
+    },
+    async login () {
+      try {
+        // username: dome1260 , password:1234
+        const { data } = await axios.post('https://test-mongodb-service2.herokuapp.com/auth/login', {
+          username: this.form.username,
+          password: this.form.password
         })
-        this.$router.push({ name: 'Home' })
-      } else {
-        alert('username / password ไม่ถูกต้อง')
+
+        if (data.data) {
+          alert('login success')
+          this.setAuth(data.data)
+          this.clearForm()
+          this.$router.push({ name: 'Home' })
+        }
+      } catch (error) {
+        alert(error?.response?.data?.message)
+        this.clearForm()
       }
     }
   }

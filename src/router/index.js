@@ -14,6 +14,11 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: () => import('../views/Login.vue')
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: () => import('../views/Register.vue')
   }
 ]
 
@@ -23,14 +28,13 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  console.log('store', store.getters['auth/auth'].username)
-
-  if (to.name !== 'Login' && !store.getters['auth/auth'].username) {
-    next({ name: 'Login' })
-  } else {
-    next()
+  if ((to.name === 'Login' || to.name === 'Register') && store.getters['auth/auth'].accessToken) {
+    next({ name: 'Home' })
   }
-
+  if (to.name !== 'Login' && to.name !== 'Register' && !store.getters['auth/auth'].accessToken) {
+    next({ name: 'Login' })
+  }
+  next()
 })
 
 export default router
